@@ -1,20 +1,29 @@
 public class Student {
-    private final int id;
-    private final String name;
-    private final String department;
+    private int id;
+    private String name;
+    private String course;
 
-    public Student(int id, String name, String department) {
+    public Student(int id, String name, String course) {
         this.id = id;
         this.name = name;
-        this.department = department;
+        this.course = course;
     }
 
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getDepartment() { return department; }
-
-    public void display() {
-        System.out.println(id + " - " + name + " (" + department + ")");
+    public int getId() {
+        return id;
     }
-} 
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+    public String toFileString() {
+    return id + "," + name + "," + course;
+}
+}
+
+ 
 
