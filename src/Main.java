@@ -2,69 +2,113 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+
         AttendanceManager manager = new AttendanceManager();
+        Admin admin = new Admin("admin", "1234");
+        Teacher teacher = new Teacher("teacher", "1234");
 
-        try (Scanner sc = new Scanner(System.in)) {
-            while (true) {
-                System.out.println("\n1. Add Student");
-                System.out.println("2. View Students");
-                System.out.println("3. Mark Attendance");
-                System.out.println("4. View Attendance");
-                System.out.println("5. Exit");
+        manager.loadStudents();
+        manager.getAttendance().loadFromFile();
 
-                System.out.print("Enter choice: ");
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("==== LOGIN ====");
+        System.out.print("Enter username: ");
+        String user = sc.next();
+        System.out.print("Enter password: ");
+        String pass = sc.next();
+
+        boolean isAdmin = admin.login(user, pass);
+        boolean isTeacher = teacher.login(user, pass);
+
+        if (!isAdmin && !isTeacher) {
+            System.out.println("Invalid login!");
+            return;
+        }
+
+        while (true) {
+
+            System.out.println("\n==== MENU ====");
+
+            if (isAdmin) {
+                System.out.println("1. Add Student");
+                System.out.println("2. Remove Student");
+            }
+
+            System.out.println("3. View Students");
+            System.out.println("4. Mark Attendance");
+            System.out.println("5. Generate Report");
+            System.out.println("6. Individual Report");
+            System.out.println("7. Save & Exit");
+
+            try {
                 int choice = sc.nextInt();
 
                 switch (choice) {
 
-                    case 1: {
-                        System.out.print("Enter ID: ");
-                        int id = sc.nextInt();
-                        sc.nextLine(); // consume newline
+                    case 1:
+                        if (isAdmin) {
+                            System.out.print("Enter ID: ");
+                            int id = sc.nextInt();
+                            sc.nextLine();
 
-                        System.out.print("Enter Name: ");
-                        String name = sc.nextLine();
+                            System.out.print("Enter Name: ");
+                            String name = sc.nextLine();
 
-                        System.out.print("Enter Dept: ");
-                        String dept = sc.nextLine();
+                            System.out.print("Enter Course: ");
+                            String course = sc.nextLine();
 
-                        manager.addStudent(new Student(id, name, dept));
+                            admin.addStudent(manager, new Student(id, name, course));
+                        }
                         break;
-                    }
 
-                    case 2: {
-                        manager.viewStudents();
+                    case 2:
+                        if (isAdmin) {
+                            System.out.print("Enter ID to remove: ");
+                            int rid = sc.nextInt();
+                            admin.removeStudent(manager, rid);
+                        }
                         break;
-                    }
 
-                    case 3: {
+                    case 3:
+                        manager.showStudents();
+                        break;
+
+                    case 4:
                         System.out.print("Enter Student ID: ");
                         int sid = sc.nextInt();
 
+                        System.out.print("Enter Day (Mon/Tue/...): ");
+                        String day = sc.next();
+
                         System.out.print("Present (true/false): ");
-                        boolean p = sc.nextBoolean();
+                        boolean present = sc.nextBoolean();
 
-                        manager.markAttendance(sid, p);
+                        teacher.markAttendance(manager, sid, day, present);
                         break;
-                    }
 
-                    case 4: {
+                    case 5:
+                        manager.generateReport();
+                        break;
+
+                    case 6:
                         System.out.print("Enter Student ID: ");
-                        int vid = sc.nextInt();
-                        manager.showAttendance(vid);
+                        int iid = sc.nextInt();
+                        manager.generateIndividualReport(iid);
                         break;
-                    }
 
-                    case 5: {
-                        System.out.println("Exiting...");
-                        System.exit(0);
-                        break;
-                    }
+                    case 7:
+                        manager.saveStudents();
+                        manager.getAttendance().saveToFile();
+                        System.out.println("Data saved successfully!");
+                        return;
 
-                    default: {
-                        System.out.println("Invalid choice! Try again.");
-                    }
+                    default:
+                        System.out.println("Invalid choice!");
                 }
+            } catch (Exception e) {
+                System.out.println("Invalid input! Please enter a number.");
+                sc.nextLine(); // consume invalid input
             }
         }
     }
